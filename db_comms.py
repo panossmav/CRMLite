@@ -18,6 +18,7 @@ def create_logs(u,act):
     cursor.execute(
         "INSERT INTO user_logs (user, action, dateandtime) VALUES (?,?,?)",(u,act,datetime.now())
     )
+    conn.commit()
 
 def check_phone(p):
     find_cust=cursor.execute(
@@ -54,6 +55,7 @@ def new_customer(n,p,e,a,v,user):
         cursor.execute(
             "INSERT INTO customers (name,phone,email,adress,vat) VALUES (?,?,?,?,?)",(n,p,e,a,v)
         )
+        conn.commit()
         create_logs(user,f"Created user (Phone {p}, Name {n})")
         return 'Ο πελάτης προστέθηκε'
     else:
@@ -64,6 +66,7 @@ def delete_customer_phone(p,user):
         cursor.execute(
             "DELETE FROM customers WHERE phone=?",(p,)
         )
+        conn.commit()
         create_logs(user,f"Delete user (Phone: {p})")
         return 'Ο πελάτης διαγράφηκε'
     else:
@@ -74,12 +77,13 @@ def delete_customer_vat(v,user):
         cursor.execute(
             "DELETE FROM customers WHERE vat=?",(v,)
         )
+        conn.commit()
         create_logs(user,f"Delete user (VAT: {v})")
         return 'Ο πελάτης διαγράφηκε'
     else:
         return 'Σφάλμα! Δεν βρέθηκε πελάτης' 
 
-def modify_customer_phone(p,n_n,n_p,n_e,n_a,n_v):
+def modify_customer_phone(p,n_n,n_p,n_e,n_a,n_v,user):
     find_cust = cursor.execute(
         "SELECT * FROM customers WHERE phone = ?",(p,)
     )
@@ -95,5 +99,9 @@ def modify_customer_phone(p,n_n,n_p,n_e,n_a,n_v):
             n_a = single_cust[3]
         if not n_v:
             n_v = single_cust[4]
-        
+        cursor.execute(
+            "UPDATE customers SET name = ?, phone = ?, email = ?, address = ?, vat = ?",(n_n,n_p,n_e,n_a,n_v)
+            )
+        conn.commit()
+        create_logs(user,f"Update customer: {single_cust[5]}")
 
