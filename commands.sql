@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS orders(
     prod_title TEXT,
     price FLOAT NOT NULL,
     status TEXT NOT NULL DEFAULT 'Fulfilled',
-    order_id INTEGER PRIMARY KEY AUTOINCREMENT
+    order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date_time TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS users(

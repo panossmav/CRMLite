@@ -3,7 +3,7 @@ import hashlib
 import sys
 import os
 import csv
-import datetime
+from datetime import datetime
 
 conn = sql.connect('database.db')
 
@@ -158,9 +158,13 @@ def create_order(c_p,p_s,u):
     if customer:
         if product:
             cursor.execute(
-                "INSERT INTO orders (cust_name, cust_phone, prod_sku, prod_title, price) VALUES (?, ?, ?, ?, ?)",(customer[0],c_p,p_s,product[0],product[1])
+                "INSERT INTO orders (cust_name, cust_phone, prod_sku, prod_title, price, date_time) VALUES (?, ?, ?, ?, ?, ?)",(customer[0],c_p,p_s,product[0],product[1],datetime.now())
             )
             order_id = cursor.lastrowid
+            if product[2] !=0:
+                cursor.execute(
+                    "UPDATE products SET stock = ? WHERE sku = ?",(product[2]-1,p_s)
+                )
             conn.commit()
             create_logs(u,f"Create order {order_id}")
             return f"Η παραγγελία με αριθμό {order_id} δημιουργήθηκε!"
@@ -170,4 +174,66 @@ def create_order(c_p,p_s,u):
         return f"Σφάλμα! ο πελάτης δεν υπάρχει"
 
 
+def find_order(o_n):
+    fetch = cursor.execute(
+        "SELECT * FROM orders WHERE order_id = ?",(o_n)
+    )
+    order = fetch.fetchone()
+    return order
+
+def search_order(o_n):
+    order = find_order(o_n)
+    if order:
+        return f"Κωδικός παραγγελίας {order[6]} \n Όνομα πελάτη: {order[0]} \n Τηλέφωνο πελάτη: {order[1]} \n Κωδικός προϊόντος: {order[2]} \n Τίτλος προϊόντος:{order[3]} \n Τιμή: {order[4]}€ \n Κατάσταση: {order[5]} \n Ημερομηνία / ώρα: {order[7]}"
+    else:
+        return f"Δεν βρέθηκε παραγγελία με αυτόν τον αριθμό"
+
+def modify_order_status(o_n,u,n_s):
+    order = find_order(o_n)
+    if order:
+        cursor.execute(
+            "UPDATE orders SET status = ?",(n_s,)
+        )
+        conn.commit()
+        create_logs(u,f"Modify order {order[5]} status to {n_s}")
+        return f"Η κατάσταση παραγγελίας άλλαξε σε {n_s}"
+    else:
+        return f"Η παραγγελία δεν βρέθηκε"
+
+def total_net():
+    fetch_orders = cursor.execute(
+        "SELECT SUM(price) FROM orders"
+    )
+    t_net = fetch_orders.fetchone()
+    return t_net
+
+def total_customers():
+    fetch_customers = cursor.execute(
+        "SELECT COUNT(*) FROM customers"
+    )
+    result = fetch_customers.fetchone()
+    return result
+
+def total_orders():
+    fetch_orders = cursor.execute(
+        "SELECT COUNT(*) FROM orders"
+    )
+    res = fetch_orders.fetchone()
+    return res
+
+def add_stock(sku,stock,u):
+    if find_prod(sku) == True:
+        fetch_products = cursor.execute(
+            "SELECT stock FROM products WHERE sku = ?",(sku,)
+        )
+        product = fetch_products.fetchone()
+        total_stock = stock + product[0]
+        cursor.execute(
+            "UPDATE products SET stock = ? WHERE sku = ?",(total_stock,sku)
+        )
+        conn.commit()
+        create_logs(u,f"Add stock to {sku}, new stock: {total_stock}")
+        return f"Νέο απόθεμα προϊόντος {sku}: {total_stock}"
+    else:
+        return f"Δεν βρέθηκε πελάτης"
 
