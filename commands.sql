@@ -26,7 +26,14 @@ CREATE TABLE IF NOT EXISTS orders(
     cust_phone INTEGER NOT NULL,
     prod_sku INTEGER NOT NULL,
     prod_title TEXT,
-    rev FLOAT NOT NULL,
+    price FLOAT NOT NULL,
     status TEXT NOT NULL DEFAULT 'Fulfilled',
     order_id INTEGER PRIMARY KEY AUTOINCREMENT
+);
+
+CREATE TABLE IF NOT EXISTS users(
+    username TEXT NOT NULL,
+    passw TEXT NOT NULL,
+    real_name TEXT,
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT
 );
