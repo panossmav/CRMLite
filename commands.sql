@@ -36,5 +36,6 @@ CREATE TABLE IF NOT EXISTS users(
     username TEXT NOT NULL,
     passw TEXT NOT NULL,
     real_name TEXT,
-    user_id INTEGER PRIMARY KEY AUTOINCREMENT
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    is_admin INTEGER NOT NULL
 );

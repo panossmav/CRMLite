@@ -15,11 +15,17 @@ cursor.executescript(sql_script)
 conn.commit()
 
 def create_logs(u,act):
-    cursor.execute(
-        "INSERT INTO user_logs (user, action, dateandtime) VALUES (?,?,?)",(u,act,datetime.now())
+    fetch_users = cursor.execute(
+        "SELECT real_name FROM users WHERE username = ?",(u,)
     )
-    conn.commit()
-
+    user = fetch_users.fetchone()
+    if user:
+        cursor.execute(
+            "INSERT INTO user_logs (user, action, dateandtime) VALUES (?,?,?)",(user[0],act,datetime.now())
+        )
+        conn.commit()
+    else:
+        pass
 def check_phone(p):
     find_cust=cursor.execute(
         "SELECT FROM customers WHERE phone = ?",(p,)
@@ -237,3 +243,33 @@ def add_stock(sku,stock,u):
     else:
         return f"Δεν βρέθηκε πελάτης"
 
+def create_user(c_u,n_u,p,r_n,isadmin):
+    fetch_users = cursor.execute(
+        "SELECT * FROM users WHERE username = ?",(n_u,)
+    )
+    user_check = fetch_users.fetchone()
+    if not user_check:
+        encrypted_pass = hashlib.sha256(p.encode()).hexdigest()
+        cursor.execute(
+            "INSERT INTO users (username, passw, real_name, is_admin) VALUES (?, ?, ?, ?)",(n_u,encrypted_pass,r_n,isadmin)
+        )
+        conn.commit()
+        create_logs(c_u,f"Create user {n_u}")
+        return f"Ο χρήστης δημιουργήθηκε"
+    else:
+        return f"Το όνομα χρήστη χρησιμοποιείται ήδη! Δοκιμαστε άλλο όνομα"
+
+def delete_user(c_u,d_u):
+    fetch_users = cursor.execute(
+        "SELECT * FROM users WHERE username = ?",(d_u,)
+    )
+    user = fetch_users.fetchone()
+    if user:
+        cursor.execute(
+            "DELETE FROM users WHERE username = ?",(d_u,)
+        )
+        conn.commit()
+        create_logs(c_u,f"Delete user {d_u}")
+        return f"Η διαγραφή ολοκληρώθηκε."
+    else:
+        return f"Δεν βρέθηκε χρήστης με αυτό το username"
