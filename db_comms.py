@@ -28,7 +28,7 @@ def create_logs(u,act):
         pass
 def check_phone(p):
     find_cust=cursor.execute(
-        "SELECT FROM customers WHERE phone = ?",(p,)
+        "SELECT * FROM customers WHERE phone = ?",(p,)
     )
     fetch = find_cust.fetchone()
     if fetch:
@@ -38,7 +38,7 @@ def check_phone(p):
     
 def check_email(e):
     find_cust=cursor.execute(
-        "SELECT FROM customers WHERE email = ?",(e,)
+        "SELECT * FROM customers WHERE email = ?",(e,)
     )
     fetch = find_cust.fetchone()
     if fetch:
@@ -48,7 +48,7 @@ def check_email(e):
 
 def check_vat(v):
     find_cust=cursor.execute(
-        "SELECT FROM customers WHERE vat = ?",(v,)
+        "SELECT * FROM customers WHERE vat = ?",(v,)
     )
     fetch = find_cust.fetchone()
     if fetch:
@@ -56,16 +56,17 @@ def check_vat(v):
     else:
         return False
     
-def new_customer(n,p,e,a,v,user):
+def new_customer_back(n,p,e,a,v,user):
     if check_phone(p) == False and check_email(e) == False and check_vat(v) == False:
         cursor.execute(
-            "INSERT INTO customers (name,phone,email,adress,vat) VALUES (?,?,?,?,?)",(n,p,e,a,v)
+            "INSERT INTO customers (name,phone,email,address,vat) VALUES (?,?,?,?,?)",(n,p,e,a,v)
         )
+        cust_id = cursor.lastrowid
         conn.commit()
         create_logs(user,f"Created user (Phone {p}, Name {n})")
-        return 'Ο πελάτης προστέθηκε'
+        return 'Ο πελάτης προστέθηκε',cust_id
     else:
-        return 'Σφάλμα! υπάρχει πελάτης με αυτά τα στοιχεία'
+        return 'Σφάλμα! υπάρχει πελάτης με αυτά τα στοιχεία',cust_id
 
 def delete_customer_phone(p,user):
     if check_phone(p) == True:
@@ -281,9 +282,23 @@ def auth(user,passw):
     user_passw = fetch_users.fetchone()
     if user_passw:
         if user_passw[0] == hashlib.sha256(passw.encode()).hexdigest():
+            create_logs(user,f"Logged in.")
             return True,True # Auth sucsessful
         else:
             return False,True #Wrong password
     else:
         return False,False # No user found
 
+def check_admin(username):
+    fetch_users = cursor.execute(
+        "SELECT is_admin FROM users WHERE username = ?",(username,)
+    )
+    user = fetch_users.fetchone()
+    if user:
+        if user[0] == 1:
+            isadmin = True
+        elif user[0] == 0:
+            isadmin = False
+    else:
+        isadmin = False
+    return isadmin

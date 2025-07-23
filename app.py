@@ -22,10 +22,12 @@ def clear_app():
 
 def start_auth():
     global username
+    global is_admin
     username = user_entry.get()
     password = passw_entry.get()
     auth_check,u_exist = auth(username,password)
     if u_exist == True:
+        is_admin = check_admin(username)
         if auth_check == True:
             home()
         else:
@@ -35,9 +37,60 @@ def start_auth():
 
 tk.Button(app,text='Σύνδεση',command=start_auth).pack()
 
+
+def new_customer_front():
+    window = tk.Toplevel(app)
+    window.title('Εγγραφή πελάτη | CRM Lite Local DB')
+    window.geometry('400x400')
+
+
+    tk.Label(window,text='Ονοματεπώνυμο πελάτη').pack()
+    name_e = Entry(window)
+    name_e.pack()
+
+    tk.Label(window,text='Τηλέφωνο').pack()
+    phone_e = Entry(window)
+    phone_e.pack()
+
+    tk.Label(window,text='Email').pack()
+    email_e=Entry(window)
+    email_e.pack()
+
+    tk.Label(window,text='Διεύθυνση κατοικίας').pack()
+    add_e = Entry(window)
+    add_e.pack()
+
+    tk.Label(window,text='ΑΦΜ').pack()
+    vat_e = Entry(window)
+    vat_e.pack()
+
+    def sbt_cust_creation():
+        name = name_e.get()
+        phone = int(phone_e.get())
+        add = add_e.get()
+        vat = int(vat_e.get())
+        email = email_e.get()
+        res,cust_id = new_customer_back(name,phone,email,add,vat,username)
+        window.destroy()
+        messagebox.showinfo('CRMLite Local DB',f"Ο πελάτης προστέθηκε! Κωδικός πελάτη: {cust_id}")
+    tk.Button(window,text='Δημιουργία',command=sbt_cust_creation).pack()
+
+
+
+
+def customers_tab():
+    clear_app()
+    tk.Button(app,text='Καταχώρηση νέου πελάτη',command=new_customer_front).pack()
+    tk.Button(app,text='<-- Πίσω',command=home).pack()
+
 def home():
     clear_app()
     tk.Label(app,text=f"Καλωσόρισες {username}").pack()
+    if is_admin == True:
+        tk.Label(app,text='Admin Panel',fg='red').pack()
+        tk.Button(app,text='Λειτουργίες Administrator').pack()
+
+    tk.Button(app,text='Πελάτες',command=customers_tab).pack()
 
 
 
