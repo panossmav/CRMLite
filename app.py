@@ -5,6 +5,7 @@ from tkinter import messagebox
 
 app = tk.Tk()
 app.title('CRMLite - Local DB')
+app.geometry('500x500')
 
 tk.Label(app,text='Συνδεθείτε:').pack()
 
@@ -74,8 +75,39 @@ def new_customer_front():
         window.destroy()
         messagebox.showinfo('CRMLite Local DB',f"Ο πελάτης προστέθηκε! Κωδικός πελάτη: {cust_id}")
     tk.Button(window,text='Δημιουργία',command=sbt_cust_creation).pack()
+    tk.Button(window,text='<-- Πίσω',command=home).pack()
 
 
+def delete_customer_front():
+    window = Toplevel(app)
+    window.title('Διαγραφή πελάτη - Admin CRMLite DB Mode')
+    window.geometry('400x400')
+
+    tk.Label(window,text='Επιλέξτε ενα').pack()
+    tk.Label(window,text='Αρ. Τηλεφώνου:').pack()
+    p_e = Entry(window)
+    p_e.pack()
+
+    tk.Label(window,text='ή').pack()
+    tk.Label(window,text='ΑΦΜ').pack()
+    vat_e = Entry(window)
+    vat_e.pack()
+
+    def sbt_cust_delete():
+        p = int(p_e.get())
+        vat = int(vat_e.get())
+        if p and vat:
+            messagebox.showerror('CRMLite Local DB','Σφάλμα! εισάγετε ΜΟΝΟ αριθμό τηλεφώνου ή ΑΦΜ')
+        else:
+            if p:
+                res = delete_customer_front(p,username)
+            elif vat:
+                res = delete_customer_vat(vat,username)
+            window.destroy()
+            messagebox.showinfo('CRMLite Local DB',f"{res}")
+    tk.Button(window,text='Διαγραφή',command=sbt_cust_delete).pack()
+    tk.Button(window,text='<-- Πίσω',command=home).pack()
+    
 
 
 def customers_tab():
@@ -83,12 +115,18 @@ def customers_tab():
     tk.Button(app,text='Καταχώρηση νέου πελάτη',command=new_customer_front).pack()
     tk.Button(app,text='<-- Πίσω',command=home).pack()
 
+def admin_page():
+    clear_app()
+    tk.Button(app,text='Διαγραφή πελάτη',command=delete_customer_front).pack()
+    tk.Button(app,text='<-- Πίσω',command=home).pack()
+
+
 def home():
     clear_app()
     tk.Label(app,text=f"Καλωσόρισες {username}").pack()
     if is_admin == True:
         tk.Label(app,text='Admin Panel',fg='red').pack()
-        tk.Button(app,text='Λειτουργίες Administrator').pack()
+        tk.Button(app,text='Λειτουργίες Administrator',command=admin_page).pack()
 
     tk.Button(app,text='Πελάτες',command=customers_tab).pack()
 
