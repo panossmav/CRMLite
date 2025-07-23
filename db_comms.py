@@ -273,3 +273,17 @@ def delete_user(c_u,d_u):
         return f"Η διαγραφή ολοκληρώθηκε."
     else:
         return f"Δεν βρέθηκε χρήστης με αυτό το username"
+    
+def auth(user,passw):
+    fetch_users = cursor.execute(
+        "SELECT passw FROM users WHERE username = ?",(user,)
+    )
+    user_passw = fetch_users.fetchone()
+    if user_passw:
+        if user_passw[0] == hashlib.sha256(passw.encode()).hexdigest():
+            return True,True # Auth sucsessful
+        else:
+            return False,True #Wrong password
+    else:
+        return False,False # No user found
+
