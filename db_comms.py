@@ -90,7 +90,7 @@ def delete_customer_vat(v,user):
     else:
         return 'Σφάλμα! Δεν βρέθηκε πελάτης' 
 
-def modify_customer_phone(p,n_n,n_p,n_e,n_a,n_v,user):
+def modify_customer(p,n_n,n_p,n_e,n_a,n_v,user):
     find_cust = cursor.execute(
         "SELECT * FROM customers WHERE phone = ?",(p,)
     )
@@ -302,3 +302,19 @@ def check_admin(username):
     else:
         isadmin = False
     return isadmin
+
+def get_cust_details(p):
+    fetch_customers = cursor.execute(
+        "SELECT * FROM customers WHERE phone = ?",(p,)
+    )
+    customer = fetch_customers.fetchone()
+    if customer:
+        name = customer[0]
+        phone = p
+        email = customer[2]
+        address = customer[3]
+        vat = customer[4]
+        cust_id = customer[5]
+        return name,phone,email,address,vat,cust_id
+    else:
+        return 'Null','Null','Null','Null','Null','Null'

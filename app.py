@@ -21,6 +21,8 @@ def clear_app():
     for widget in app.winfo_children():
         widget.forget()
 
+
+
 def start_auth():
     global username
     global is_admin
@@ -108,11 +110,75 @@ def delete_customer_front():
     tk.Button(window,text='Διαγραφή',command=sbt_cust_delete).pack()
     tk.Button(window,text='<-- Πίσω',command=home).pack()
     
+def edit_customer():
+    window = Toplevel(app)
+    window.title('Επεξεργασία πελάτη - CRMLite Local DB')
+    window.geometry('500x500')
+    tk.Label(window,text='Κινητό τηλέφωνο:').pack()
+    p_e = Entry(window)
+    p_e.pack()
+    def sbt_search():
+        phone = int(p_e.get())
+        valid_phone = check_phone(phone)
+        if valid_phone == True:
+            for widget in window.winfo_children():
+                widget.forget()
+            c_name,c_phone,c_email,c_address,c_vat,cust_id = get_cust_details(phone)
+            tk.Label(window,text=f"Στοιχεία πελάτη: \n Ονοματεπώνυμο: {c_name} \n Κινητό τηλέφωνο: {c_phone} \n Email:{c_email} \n Διεύθυνση: {c_address} \n ΑΦΜ: {c_vat} \n Κωδικός πελάτη: {cust_id}").pack()
+            tk.Label(window,text=f" Αφήστε κενά τα στοιχεία που θέλετε να διατηρηθούν: \n\n ").pack()
+            
+
+            tk.Label(window,text='Όνομα:').pack()
+            n_name_e = Entry(window)
+            n_name_e.pack()
+
+            tk.Label(window,text='Κινητό:').pack()
+            n_phone_e = Entry(window)
+            n_phone_e.pack()
+
+            tk.Label(window,text='Email:').pack()
+            n_email_e = Entry(window)
+            n_email_e.pack()
+
+            tk.Label(window,text='Διεύθυνση:').pack()
+            n_address_e = Entry(window)
+            n_address_e.pack()
+
+            tk.Label(window,text='ΑΦΜ').pack()
+            n_vat_e = Entry(window)
+            n_vat_e.pack()
+
+            def sbt_edit():
+                n_name = n_name_e.get()
+                n_phone = n_phone_e.get()
+                if n_phone:
+                    n_phone = int(n_phone)
+                n_email = n_email_e.get()
+                n_address = n_address_e.get()
+                n_vat = n_vat_e.get()
+                if n_vat:
+                    n_vat = int(n_vat)
+
+                modify_customer(phone,n_name,n_phone,n_email,n_address,n_vat,username)
+
+                window.destroy()
+                messagebox.showinfo('Δημιουργία πελάτη - CRMLite DB',f"Έγινε επεξεργασία πελάτη: {cust_id}")
+                home()
+
+            tk.Button(window,text='Επεξεργασία πελάτη',command=sbt_edit).pack()
+            tk.Button(window,text='<-- Πίσω',command=home).pack()
+        else:
+            messagebox.showerror('Δημιουργία πελάτη - CRMLite DB','Δεν βρέθηκε πελάτης με αυτό το τηλεφωνο!')
+    tk.Button(window,text='Αναζήτηση αριθμού',command=sbt_search).pack()
+    tk.Button(window,text='<-- Πίσω',command=home).pack()
+
+
 
 
 def customers_tab():
     clear_app()
     tk.Button(app,text='Καταχώρηση νέου πελάτη',command=new_customer_front).pack()
+    tk.Button(app,text='Επεξεργασία πελάτη',command=edit_customer).pack()
     tk.Button(app,text='<-- Πίσω',command=home).pack()
 
 def admin_page():
