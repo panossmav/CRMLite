@@ -173,12 +173,37 @@ def edit_customer():
     tk.Button(window,text='<-- Πίσω',command=home).pack()
 
 
+def customer_lookup():
+    window = Toplevel(app)
+    window.title('Αναζήτηση πελάτη - CRMLite LocalDB')
+    window.geometry('400x400')
+
+
+    tk.Label(window,text='Κινητό:').pack()
+    p_e = Entry(window)
+    p_e.pack()
+    def sbt_lookup():
+        phone = int(p_e.get())
+        cust_found = check_phone(phone)
+        if cust_found == True:
+            for widget in window.winfo_children():
+                widget.pack_forget()
+            c_name,c_phone,c_email,c_address,c_vat,cust_id = get_cust_details(phone)
+            tk.Label(window,text=f"Στοιχεία πελάτη: \n Ονοματεπώνυμο: {c_name} \n Κινητό τηλέφωνο: {c_phone} \n Email:{c_email} \n Διεύθυνση: {c_address} \n ΑΦΜ: {c_vat} \n Κωδικός πελάτη: {cust_id}").pack()
+            tk.Label(window,text=f"{find_cust_orders(phone)}").pack()
+            tk.Button(window,text='Κλεισιμο παραθύρου',command=window.destroy).pack()
+        else:
+            messagebox.showerror('Προβολή πελάτη - CRMLite LocalDB','Ο πελάτης δεν βρέθηκε!')
+    tk.Button(window,text='Αναζήτηση',command=sbt_lookup).pack()
+    tk.Button(window,text='<-- Πίσω',command=home).pack()
 
 
 def customers_tab():
     clear_app()
     tk.Button(app,text='Καταχώρηση νέου πελάτη',command=new_customer_front).pack()
     tk.Button(app,text='Επεξεργασία πελάτη',command=edit_customer).pack()
+    tk.Button(app,text='Αναζήτηση πελάτη',command=customer_lookup).pack()
+
     tk.Button(app,text='<-- Πίσω',command=home).pack()
 
 def admin_page():

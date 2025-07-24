@@ -32,9 +32,9 @@ def check_phone(p):
     )
     fetch = find_cust.fetchone()
     if fetch:
-        return True
+        return True #Exists
     else:
-        return False
+        return False #Not exist
     
 def check_email(e):
     find_cust=cursor.execute(
@@ -318,3 +318,16 @@ def get_cust_details(p):
         return name,phone,email,address,vat,cust_id
     else:
         return 'Null','Null','Null','Null','Null','Null'
+
+def find_cust_orders(c_phone):
+    fetch_cust=cursor.execute(
+        "SELECT order_id,prod_title,price,status,date_time FROM orders WHERE cust_phone = ?",(c_phone,)
+    )
+    orders = fetch_cust.fetchall()
+    if orders:
+        header = "Αρ. Παραγγελίας | Προϊόν | Τιμή | Κατάσταση | Ώρα / Ημερομηνία"
+        seperator = '-'*len(header)
+        content = "\n".join(" | ".join(str(col) for col in order) for order in orders)
+        return f"{header}\n{seperator}\n{content}"
+    else:
+        return f"No orders found!" 
